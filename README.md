@@ -39,4 +39,4 @@ git push origin your-branch-name
 After pushing, navigate to the repository in your browser and create a PR to merge your changes into the main branch.
 
 ### 5. Review and Merge
-Ensure your PR is reviewed by team members before merging. Once approved and all checks pass, merge it into the main branch.
+Ensure your PR is reviewed by team members before merging. Once approved and all checks pass, merge it into the main branch...
