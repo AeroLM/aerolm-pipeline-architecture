@@ -1,0 +1,32 @@
+name: On Merge to Main
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  post-merge-actions:
+    # This ensures the job only runs if the PR was actually merged (not just closed without merging)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Acknowledge Merge
+        run: |
+          echo "Branch '${{ github.head_ref }}' was successfully merged into main!"
+          echo "You can add deployment or build steps here."
+
+      # Optional: If your goal was to delete the branch after it gets merged, 
+      # GitHub has a built-in repository setting for this (Settings > General > Pull Requests > 'Automatically delete head branches').
+      # However, if you explicitly want an action to do it, you can use the step below:
+      
+      # - name: Delete Merged Branch
+      #   uses: dawidd6/action-delete-branch@v3
+      #   with:
+      #     github_token: ${{secrets.GITHUB_TOKEN}}
+      #     branches: ${{github.head_ref}}
