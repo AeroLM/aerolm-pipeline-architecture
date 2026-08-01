@@ -78,3 +78,5 @@ git fetch --prune
 - Keep PRs small and focused on a single issue/feature.
 - Provide a clear description of *why* the change is being made.
 - If your change breaks existing pipeline logic, highlight it clearly in the PR description.
+
+### Further notes and doc will come below this
