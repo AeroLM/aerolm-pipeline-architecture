@@ -1,0 +1,50 @@
+name: Enforce Merge Flow
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-if-merged-to-develop:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need history to compare branches
+
+      - name: Verify branch is merged into develop
+        run: |
+          # The source branch of this PR
+          HEAD_BRANCH="${{ github.head_ref }}"
+          
+          echo "Checking if branch '$HEAD_BRANCH' is already in 'develop'..."
+          
+          # 1. Fetch the necessary branches
+          git fetch origin $HEAD_BRANCH
+          git fetch origin develop || { echo "::error::Develop branch not found remotely!"; exit 1; }
+          
+          # 2. Check Git History (Works if you use standard merge commits)
+          if git merge-base --is-ancestor origin/$HEAD_BRANCH origin/develop; then
+            echo "✅ Success: Branch '$HEAD_BRANCH' is merged into develop (verified via git history)."
+            exit 0
+          fi
+          
+          # 3. Check GitHub PRs (Works if you use 'Squash and Merge' into develop)
+          MERGED_PRS=$(gh pr list --base develop --head "$HEAD_BRANCH" --state merged --json number --jq 'length')
+          
+          if [ "$MERGED_PRS" -gt "0" ]; then
+            echo "✅ Success: Found a merged Pull Request from '$HEAD_BRANCH' to develop."
+            exit 0
+          fi
+          
+          echo "::error::Branch '$HEAD_BRANCH' has NOT been merged into 'develop' yet!"
+          echo "::error::You must merge it into 'develop' first before you can merge it into 'main'."
+          exit 1
