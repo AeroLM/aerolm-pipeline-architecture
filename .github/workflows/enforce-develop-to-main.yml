@@ -1,0 +1,20 @@
+name: Enforce Merge Flow
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR is coming from develop
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "::error::Direct merges to 'main' are only allowed from the 'develop' branch."
+            echo "::error::Please merge your feature branch ('${{ github.head_ref }}') into 'develop' first!"
+            exit 1
+          fi
+          echo "Source branch is 'develop'. Proceeding..."
